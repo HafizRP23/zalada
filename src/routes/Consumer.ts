@@ -1,5 +1,7 @@
 import { FastifyInstance, RouteOptions } from "fastify";
 import * as ConsumerController from "src/controller/ConsumerController";
+import { productSchema } from "src/services/models/Product";
+import { Schema, number, string } from "zod";
 
 const routes: RouteOptions[] = [
   {
@@ -17,6 +19,20 @@ const routes: RouteOptions[] = [
         tags: ["Consumer Services"]
     },
     handler: ConsumerController.getProducstHandler,
+  },
+  {
+    method: ["POST"],
+    url: "/product/order",
+    schema: {
+      tags: ["Consumer Services"],
+      body: {
+        object:{
+          name: string,
+        quantity: number
+        }
+      },
+    },
+    handler: ConsumerController.orderProductHandler,
   },
 ];
 
