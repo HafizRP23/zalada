@@ -20,7 +20,7 @@ export class Init1701748611310 implements MigrationInterface {
             CREATE TABLE IF NOT EXISTS banks (
             id INT PRIMARY KEY AUTO_INCREMENT,
             bank_name VARCHAR(255) UNIQUE,
-            account INT NOT NULL
+            account VARCHAR(20) NOT NULL
             );`
         )
 
