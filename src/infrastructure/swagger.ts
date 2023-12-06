@@ -2,10 +2,15 @@ import fastifySwagger from "@fastify/swagger"
 import fastifySwaggerUi from "@fastify/swagger-ui"
 import fp from "fastify-plugin"
 import { userSchemas } from "../services/models/User"
+import { transactionSchemas } from "src/services/models/Transaction"
 
 
 export default fp(async (server) => {
     for (const schema of [...userSchemas]) {
+        server.addSchema(schema)
+    }
+
+    for (const schema of [...transactionSchemas]) {
         server.addSchema(schema)
     }
 
