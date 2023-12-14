@@ -69,32 +69,29 @@ export async function createTransactionDomain({customer_id, order, payment_type}
     }
 }
 
-export async function TransactionHistoryDomain(params: TransactionDto.TransactionHistoryParams) {
-    const transactionHistory = await TransactionRepository.DBTransactionHistory(params);
+export async function OrderHistoryDomain(params: TransactionDto.OrderHistoryParams) {
+    const orderHistory = await TransactionRepository.DBOrderHistory(params);
 
-    if (transactionHistory.length < 1) {
+    if (orderHistory.length < 1) {
         throw new Error("NO_TRANSACTIONS_FOUND")
     }
 
-    const result: TransactionDto.TransactionHistoryResponse = {}
+    const result: TransactionDto.OrderHistoryResponse = []
 
-    for (const item of transactionHistory) {
-        if (!result[item.order_no]) {
-            result[item.order_no] = {
-                order_no: item.order_no,
-                product: [],
-                status: item.status,
-                customer_id: item.customer_id,
-                payment_type: item.payment_type,
-                order_time: item.order_time,
-                verified_by: item.verified_by
-            }
+    for(const item of orderHistory){
+        const products = await TransactionRepository.DBGetOrders(item.order_no)
+
+        let totalPrice = 0
+
+        for(const product of products){
+            totalPrice += product.price * product.quantity
         }
 
-        result[item.order_no].product.push({
-            product_id: item.product_id,
-            price: item.price,
-            quantity: item.quantity
+        result.push({
+            order_no: item.order_no,
+            status: item.status,
+            items: products,
+            total_price: totalPrice
         })
     }
 

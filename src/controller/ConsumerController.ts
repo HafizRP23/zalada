@@ -110,19 +110,19 @@ export async function getPaymentTypesHandler() {
 }
 
 
-export async function TransactionHistoryHandler(request: FastifyRequest, reply: FastifyReply) {
-    // const user = request.user;
-    const {status} = request.body as TransactionDto.TransactionHistoryRequest;
-    // const userid = user.id;
+export async function OrderHistoryHandler(request: FastifyRequest, reply: FastifyReply) {
+    const user = request.user;
+    const {status} = request.body as TransactionDto.OrderHistoryRequest;
+    const userid = user.id;
 
     if(status){
-        return await TransactionDomainService.TransactionHistoryDomain({
-            userid: 6,
+        return await TransactionDomainService.OrderHistoryDomain({
+            userid,
             status
         })
     }else{
-        return await TransactionDomainService.TransactionHistoryDomain({
-            userid: 6
+        return await TransactionDomainService.OrderHistoryDomain({
+            userid
         })
     }
 
