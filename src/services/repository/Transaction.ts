@@ -47,8 +47,12 @@ export async function DBCreateOrder({order_no, price, product_id, quantity}: Tra
     return query
 }
 
-export async function DBTransactionHistory(params: TransactionDto.TransactionHistoryParams) {
-  const transactionHistory = await db.query<TransactionDto.TransactionHistoryResult[]>(`SELECT t.status, t.customer_id, t.payment_type, t.verified_by, t.order_time, o.order_no, o.product_id, o.price, o.quantity FROM transactions t INNER JOIN orders o ON t.order_no = o.order_no WHERE t.customer_id = ? ${params.status ? `AND t.status = ${params.status}`: ''}`, [params.userid]);
+export async function DBOrderHistory(params: TransactionDto.OrderHistoryParams) {
+  const orderHistory = await db.query<TransactionDto.OrderHistoryResult[]>(`SELECT t.status, t.order_no FROM transactions t INNER JOIN orders o ON t.order_no = o.order_no WHERE t.customer_id = ? ${params.status ? `AND t.status = ${params.status}`: ''} GROUP BY t.order_no ORDER BY t.order_time ASC`, [params.userid]);
 
-  return transactionHistory;
+  return orderHistory;
+}
+
+export async function DBGetOrders(order_no: string) {
+    return await db.query<TransactionDto.ProductList[]>(`SELECT p.name as product_name, o.price, o.quantity FROM orders o LEFT JOIN products p ON p.id = o.product_id WHERE o.order_no = ?`, [order_no])
 }
