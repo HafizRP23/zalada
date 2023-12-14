@@ -2,7 +2,7 @@ import { FastifyRequest } from "fastify";
 import { RequestError } from "src/config/error";
 import * as UserDomainService from "src/services/domain/User";
 import { AddProductByAdmin } from "src/services/models/Product";
-import { CreateUserByAdmin } from "src/services/models/User";
+import { CreateUserByAdmin, DeleteUserRequest } from "src/services/models/User";
 import * as Bcrypt from "src/utils/password"
 
 export async function Hello(request: FastifyRequest) {
@@ -49,6 +49,19 @@ export async function createUserByAdmin(request: FastifyRequest) {
 
         return {message:true}
 
+    } catch (error){
+        throw error
+    }
+}
+
+export async function deleteUserByAdminController(request: FastifyRequest){
+    try{
+        const {email} = request.body as DeleteUserRequest
+        const deleteUser = await UserDomainService.deleteUserByAdmin({
+            email
+        })
+
+        return {message:deleteUser}
     } catch (error){
         throw error
     }

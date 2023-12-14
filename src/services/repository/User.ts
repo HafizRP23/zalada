@@ -1,7 +1,8 @@
 import DatabaseService from "@infrastructure/database"
 import * as UserTypes from "../models/User/type"
 import { ResultSetHeader } from "mysql2"
-import { QueryRunner } from "typeorm"
+import { InsertValuesMissingError, Not, QueryRunner } from "typeorm"
+import { NotFoundError, RequestError, ServerError } from "src/config/error";
 
 const db = DatabaseService.getDatasource()
 
@@ -56,4 +57,28 @@ export async function changePassword(params:UserTypes.ChangePassQueryParams,quer
     "UPDATE users SET password = ? WHERE id = ? ",[new_password, user_id, queryRunner]
   )
   return query
+}
+
+export async function DBInsertToTrashedUser({id,email,username,password,first_name,last_name,phone_number,registered_date,address,user_level}:UserTypes.DeleteUserQueryParams,queryRunner:QueryRunner){
+  if (!queryRunner?.isTransactionActive) {
+    throw new ServerError("Must in Transaction");
+  }
+  const  params = [
+    [id,email,username,password,first_name,last_name,phone_number,registered_date,address,user_level]
+  ]
+  const query = await db.query<ResultSetHeader>(
+    "INSERT INTO trash_users (id,username, email, password, first_name, last_name, phone_number,registered_date, address, user_level) values ?",[params],queryRunner
+  )
+  return query
+}
+
+export async function DBDeleteUser(user_id:number,queryRunner:QueryRunner){
+  if (!queryRunner?.isTransactionActive) {
+    throw new ServerError("Must in Transaction");
+  }
+
+  const deleteUser = await db.query<ResultSetHeader>(
+    "DELETE FROM users WHERE id = ?",[user_id],queryRunner
+  )
+  return deleteUser
 }

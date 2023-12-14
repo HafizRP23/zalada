@@ -46,7 +46,7 @@ const routes: RouteOptions[] = [
                     authorization: []
                 }
             ],
-            body: userSchema("addProductsSchema"),
+            body: productSchema("addProductsSchema"),
             response:{
                 200: productSchema("addProductsResponse")
             }
@@ -71,6 +71,24 @@ const routes: RouteOptions[] = [
         },
         preHandler: Auth.CheckRules(ListRules.ACCESS_CREATE_USER),
         handler: AdminController.createUserByAdmin
+    },
+    {
+        method: ["POST"],
+        url: "/delete-user",
+        schema:{
+            tags:["Admin Services"],
+            security:[
+                {
+                    authorization:[]
+                }
+            ],
+            body: userSchema("deleteUserRequest"),
+            response: {
+                200:userSchema("deleteUserResponse")
+            }
+        },
+        preHandler: Auth.CheckRules(ListRules.ACCESS_DELETE_USER),
+        handler: AdminController.deleteUserByAdminController
     }
 ]
 
