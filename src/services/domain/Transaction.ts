@@ -1,26 +1,26 @@
 import * as TransactionRepository from "../repository/Transaction";
-import { TransactionHistoryParams, TransactionHistoryResponse } from "src/services/models/Transaction";
+import { OrderHistoryParams, OrderHistoryResponse } from "src/services/models/Transaction";
 
 
-export async function TransactionHistoryDomain(params: TransactionHistoryParams) {
-    const transactionHistory = await TransactionRepository.DBTransactionHistory(params);
+export async function OrderHistoryDomain(params: OrderHistoryParams) {
+    const orderHistory = await TransactionRepository.DBOrderHistory(params);
 
-    if(transactionHistory.length < 1){
+    if(orderHistory.length < 1){
         throw new Error("NO_TRANSACTIONS_FOUND")
     }
 
-    const result: TransactionHistoryResponse = {}
+    const result: OrderHistoryResponse = {}
 
-    for(const item of transactionHistory){
+    for(const item of orderHistory){
+       
         if(!result[item.order_no]){
             result[item.order_no] = {
                 order_no: item.order_no,
                 product: [],
                 status: item.status,
-                customer_id: item.customer_id,
                 payment_type: item.payment_type,
                 order_time: item.order_time,
-                verified_by: item.verified_by
+                total_price: 0
             }
         }
         
@@ -29,6 +29,8 @@ export async function TransactionHistoryDomain(params: TransactionHistoryParams)
             price: item.price,
             quantity: item.quantity
         })
+
+        result[item.order_no].total_price += item.price * item.quantity
     }
 
     return result;

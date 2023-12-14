@@ -1,8 +1,8 @@
-import { productList, transactionHistoryRequest, transactionHistoryResponse } from "./schema";
+import { productList, orderHistoryRequest, orderHistoryResponse } from "./schema";
 import * as z from "zod";
 
-export type TransactionHistoryRequest = z.infer<typeof transactionHistoryRequest>
-export type TransactionHistoryResponse = z.infer<typeof transactionHistoryResponse>;
+export type OrderHistoryRequest = z.infer<typeof orderHistoryRequest>
+export type OrderHistoryResponse = z.infer<typeof orderHistoryResponse>;
 export type ProductList = z.infer<typeof productList>;
 
 export enum TransactionStatus {
@@ -15,19 +15,17 @@ export enum TransactionStatus {
     CANCEL = 7
 }
 
-export type TransactionHistoryParams = {
+export type OrderHistoryParams = {
     userid: number;
     status?: TransactionStatus;
 }
 
-export type TransactionHistoryResult = {
+export type OrderHistoryResult = {
     order_no: string;
     product_id: number;
     order_time: string;
     status: number;
-    customer_id: number;
     payment_type: number;
-    verified_by: number;
     price: number;
     quantity: number;
 }

@@ -21,16 +21,17 @@ const routes: RouteOptions[] = [
   },
   {
     method: ["POST"],
-    url: "/transaction/transaction-history",
+    url: "/transaction/order-history",
     schema: {
         tags: ["Consumer Services"],
-        body: transactionSchema('transactionHistoryRequest'),
+        description: "Get order history untuk customer tertentu. Dapat berdasarkan status ataupun tidak.",
+        body: transactionSchema('orderHistoryRequest'),
         response: {
-          200: transactionSchema('transactionHistoryResponse')
+          200: transactionSchema('orderHistoryResponse')
         }
 
     },
-    handler: ConsumerController.TransactionHistoryHandler,
+    handler: ConsumerController.OrderHistoryHandler,
   }
 ];
 
