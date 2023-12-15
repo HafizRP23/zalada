@@ -26,25 +26,16 @@ export async function addProductsHandler(request: FastifyRequest) {
 export async function createUserByAdmin(request: FastifyRequest) {
     try{
         const {username,email,first_name,last_name,password,password_confirmation,user_level} = request.body as CreateUserByAdmin
-        if (password != password_confirmation) {
-            throw new RequestError("CONFIRMATION_PASSWORD_DOES_NOT_MATCH")
-        }
-
-        const checkEmail = await UserDomainService.checkEmailExistDomain(email);
-        if (checkEmail) {
-            throw new RequestError("EMAIL_ALREADY_EXIST")
-        } 
-
-        const hashPassword = await Bcrypt.hashPassword(password)
-
+        
         await UserDomainService.createUserByAdmin({
             username,
             email,
             first_name,
             last_name,
-            password: hashPassword,
+            password,
             user_level,
-            password_confirmation
+            password_confirmation,
+            user_id_level:request.user.user_level
         })
 
         return {message:true}

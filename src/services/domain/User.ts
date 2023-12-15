@@ -40,10 +40,27 @@ export async function checkUserExistByEmailDomain(email: string) {
 }
 
 
-export async function createUserByAdmin(params:UserTypes.CreateUserByAdmin){
-  const createUserByAdmin = await UserRepository.DBCreateUserByAdmin(params)
+export async function createUserByAdmin({username,email,first_name,last_name,password,password_confirmation,user_level,user_id_level}:UserTypes.CreateUserByAdmin){
+  
+  if (password != password_confirmation) {
+    throw new RequestError("CONFIRMATION_PASSWORD_DOES_NOT_MATCH")
+  }
 
-  return createUserByAdmin
+  if (user_id_level !== 1 && user_level == 1){
+    throw new RequestError("FORBIDEN_USER_LEVEL")
+  }
+
+  // Check user level, if not exist will throw an error
+  await UserRepository.DBCheckUserLevel(user_level)
+
+  const checkEmail = await UserRepository.DBCheckUserExistByEmail(email);
+   
+console.log(checkEmail,"de")
+  const hashPassword = await Bcrypt.hashPassword(password)
+
+  const createUser = await UserRepository.DBCreateUserByAdmin({username,email,first_name,last_name,password:hashPassword,user_level}) 
+  
+  return createUser
 }
 
 export async function checkEmailExistDomain(email:string){

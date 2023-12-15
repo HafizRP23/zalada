@@ -2,6 +2,8 @@ import DatabaseService from "@infrastructure/database"
 import * as UserTypes from "../models/User/type"
 import { ResultSetHeader } from "mysql2"
 import { QueryRunner } from "typeorm"
+import { NotFoundError, RequestError, ServerError } from "src/config/error";
+
 
 const db = DatabaseService.getDatasource()
 
@@ -26,6 +28,9 @@ export async function DBGetStaffs() {
 
 export async function DBCheckUserExistByEmail(email: string) {
   const query = await db.query<UserTypes.User[]>("SELECT * FROM users WHERE email = ?", [email])
+  if (query.length >= 1) {
+    throw new RequestError("EMAIL_ALREADY_EXIST")
+  }
   return query
 }
 
@@ -34,7 +39,7 @@ export async function DBGetUserRules(user_id: number) {
   return query
 }
 
-export async function DBCreateUserByAdmin(params:UserTypes.CreateUserByAdmin){
+export async function DBCreateUserByAdmin(params:UserTypes.CreateUserQueryParams){
   const {username,email,first_name,last_name,password,user_level} = params
   const query = await db.query<ResultSetHeader>(
     "INSERT INTO users( username,email,first_name,last_name,password,user_level ) VALUES (?,?,?,?,?,?)",[username,email,first_name,last_name,password,user_level]
@@ -55,5 +60,16 @@ export async function changePassword(params:UserTypes.ChangePassQueryParams,quer
   const query = await db.query<ResultSetHeader>(
     "UPDATE users SET password = ? WHERE id = ? ",[new_password, user_id, queryRunner]
   )
+  return query
+}
+
+export async function DBCheckUserLevel(id:number){
+  const query = await db.query<UserTypes.CheckRoles[]>(
+    "SELECT id FROM user_roles WHERE id = ?",[id]
+  )
+
+  if(query.length < 1) {
+    throw new NotFoundError("USER_LEVEL_NOT_EXIST")
+  }
   return query
 }

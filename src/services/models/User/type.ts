@@ -35,6 +35,7 @@ export type CheckUserByUsernameOrEmailParams = {
 
 
 export type CreateUserByAdmin = {
+    user_id_level:number
     username:string;
     email:string;
     first_name:string,
@@ -44,9 +45,22 @@ export type CreateUserByAdmin = {
     user_level:number;
 }
 
+export type CreateUserQueryParams = {
+    username:string;
+    email:string;
+    first_name:string,
+    last_name:string,
+    password:string;
+    user_level:number;
+}
+
 export type ChangePassRequest = z.infer<typeof changePassRequest> & {user_id:number}
 
 export type ChangePassQueryParams ={
     new_password:string;
     user_id:number;
+}
+
+export type CheckRoles = {
+    id:number
 }
