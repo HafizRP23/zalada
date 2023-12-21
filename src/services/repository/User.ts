@@ -69,6 +69,10 @@ export async function DBInsertToTrashedUser({id,email,username,password,first_na
   const query = await db.query<ResultSetHeader>(
     "INSERT INTO trash_users (id,username, email, password, first_name, last_name, phone_number,registered_date, address, user_level) values ?",[params],queryRunner
   )
+
+  if(query.affectedRows < 1){
+    throw new ServerError("FAILED_INSERT_TO_TRASH")
+  }
   return query
 }
 
@@ -80,5 +84,9 @@ export async function DBDeleteUser(user_id:number,queryRunner:QueryRunner){
   const deleteUser = await db.query<ResultSetHeader>(
     "DELETE FROM users WHERE id = ?",[user_id],queryRunner
   )
+
+  if (deleteUser.affectedRows < 1) {
+    throw new ServerError("FAILED_DELETE_USER");
+  }
   return deleteUser
 }

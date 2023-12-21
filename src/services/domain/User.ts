@@ -109,21 +109,14 @@ export async function deleteUserByAdmin({email}:UserTypes.DeleteUserRequest){
   try {
     await conn.startTransaction()
 
-
-    const insertToTrashedUser = await UserRepository.DBInsertToTrashedUser( data_user[0], conn)
-    if(insertToTrashedUser.affectedRows < 1){
-      throw new ServerError("FAILED_INSERT_TO_TRASH")
-    }
-
-    const deleteUser = await UserRepository.DBDeleteUser(data_user[0].id, conn)
-    if (deleteUser.affectedRows < 1) {
-      throw new ServerError("FAILED_DELETE_USER");
-    }
-
+    await UserRepository.DBInsertToTrashedUser( data_user[0], conn)
+    
+    await UserRepository.DBDeleteUser(data_user[0].id, conn)
+    
     await conn.commitTransaction();
     await conn.release();
 
-    return deleteUser;
+    return true;
 
   } catch (error) {
     await conn.rollbackTransaction();
