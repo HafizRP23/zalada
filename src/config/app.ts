@@ -15,7 +15,8 @@ export const envSchema = z.object({
     MAILER_PORT: z.preprocess(data => parseInt(data as string), z.number()),
     NODE_PORT: z.preprocess(port => parseInt(port as string), z.number()),
     PENDING_ORDER_MAX_TIME: z.preprocess(data => parseInt(data as string), z.number()),
-    LOW_STOCK_TRESHOLD: z.preprocess(data => parseInt(data as string), z.number())
+    LOW_STOCK_TRESHOLD: z.preprocess(data => parseInt(data as string), z.number()),
+    AMQP_URL: z.string()
 })
 
 

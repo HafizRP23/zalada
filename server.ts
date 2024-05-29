@@ -8,6 +8,7 @@ import { envSchema } from "./src/config/app"
 import { ajvFilePlugin } from "src/utils/ajv"
 import { ZodError } from "zod"
 import cron from "src/cron"
+import AMQPService from "@infrastructure/amqp"
 
 const server = fastify({ logger: process.env.NODE_ENV == "development" ? true : false, ajv: { plugins: [ajvFilePlugin] } })
 
@@ -18,6 +19,9 @@ async function main() {
 
         // Register Mail Service
         await MailerService.init()
+
+        // Register rabbitmq (AMQP) service
+        await AMQPService.createInstance({ connection_url: process.env.AMQP_URL })
 
         await server.register(SwaggerService)
 
@@ -33,6 +37,7 @@ async function main() {
 
         await server.listen({ port: process.env.NODE_PORT, host: process.env.NODE_HOST })        
     } catch (error) {
+        // Handle error env schema
         if(error instanceof ZodError) {
             console.error(error.issues)
         } else {

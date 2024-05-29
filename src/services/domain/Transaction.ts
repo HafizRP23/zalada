@@ -11,6 +11,7 @@ import MailService from "@infrastructure/mailer"
 import Handlebars from "handlebars";
 import fs from "fs"
 import path from "path";
+import * as AMQPTransaction from "../repository/amqp/Transaction";
 
 export async function getPaymentTypesDomain() {
     return await TransactionRepository.DBGetPaymentTypes()
