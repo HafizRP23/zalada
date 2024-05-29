@@ -82,33 +82,10 @@
                     <td>{{this.price}}</td>
                 </tr>
                 {{/each}}
-
                 <tr>
                     <td colspan="2">Total Price</td>
                     <td>{{total_price}}</td>
                 </tr>
-                {{!-- ${(() => {
-                const column = []
-
-                for (const item of items) {
-                const td = [
-                `<td>${item.product_name}</td>`,
-                `<td>${item.quantity}</td>`,
-                `<td>${item.price}</td>`,
-                ]
-
-                const tr = `<tr> ${td.join('\n')} </tr>`
-
-                column.push(tr)
-                }
-
-                return column.join('\n')
-                })()
-                } --}}
-                {{!-- <tr>
-                    <td colspan="2">Total Price</td>
-                    <td>{total_price}</td>
-                </tr> --}}
                 <!-- Add more rows for additional products as needed -->
             </tbody>
         </table>
