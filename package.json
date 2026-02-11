@@ -9,6 +9,7 @@
     "dev": "nodemon -e ts --exec \"ts-node -r tsconfig-paths/register -r ./src/entry/main.ts\"",
     "mail:dev": "nodemon -e ts --exec \"ts-node -r tsconfig-paths/register -r ./src/entry/mail.ts\"",
     "cron:dev": "ts-node --experimental-specifier-resolution=node ./cron",
+    "migrate:create": "ts-node ./node_modules/typeorm/cli.js migration:create",
     "migrate:revert": "ts-node ./node_modules/typeorm/cli.js migration:revert --d ormconfig/index.ts",
     "migrate:generate": "ts-node ./node_modules/typeorm/cli.js migration:generate ormconfig/migrations/init --d ormconfig/index",
     "migrate:run": "ts-node ./node_modules/typeorm/cli.js migration:run --d ormconfig/index.ts",
