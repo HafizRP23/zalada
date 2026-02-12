@@ -1,5 +1,9 @@
 import * as z from 'zod'
 
+const sentryDto = {
+    SENTRY_DSN: z.string()
+}
+
 const mailAmqpDto = {
     AMQP_USERNAME: z.string(),
     AMQP_PASSWORD: z.string(),
@@ -39,7 +43,8 @@ export const mainAppSchema = z.object({
     ...mailerDto,
     ...mainDBDto,
     ...mailAmqpDto,
-    ...cronDto
+    ...cronDto,
+    ...sentryDto
 })
 
 export const mailAppSchema = z.object({

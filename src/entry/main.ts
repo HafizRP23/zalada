@@ -1,6 +1,9 @@
 import "dotenv/config"
+import "@utils/sentry" // Initialize Sentry AFTER env vars are loaded but BEFORE app imports
+
 import fastify from 'fastify'
 import { ZodError } from "zod"
+import * as Sentry from "@sentry/node"
 
 import SwaggerService from '@infrastructure/Main/swagger'
 import RoutesService from "@infrastructure/Main/routes"
@@ -27,6 +30,9 @@ async function main() {
             serviceName: process.env.AMQP_MAILER_NAME
         })
 
+        /** initialize sentry, for setup metrics */
+        Sentry.setupFastifyErrorHandler(server)
+
         // Initialize database service
         await InfraDB.init()
 
@@ -45,14 +51,17 @@ async function main() {
 
         logger.info({ message: `server running at ${url}` })
     } catch (error) {
+        Sentry.captureException(error)
+        
         if (error instanceof ZodError) {
             const err = error.issues[0]
             console.error({ message: `${err.code} ${err.path[0]}` })
         } else {
-            const message = JSON.stringify(error)
-            console.error({ message })
+            console.log(error)
         }
 
+        // Wait for Sentry to send events before exiting
+        await Sentry.close(2000)
         process.exit(1)
     }
 
