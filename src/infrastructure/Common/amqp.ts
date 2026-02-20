@@ -78,6 +78,22 @@ class AMQPService implements Infrastructure {
             throw error
         }
     }
+
+    async close() {
+        try {
+            // Close all channels
+            for (const key in this.connection) {
+                const channel = this.connection[key]
+                await channel.close()
+            }
+            // Close connection
+            if (this.instance) {
+                await this.instance.close()
+            }
+        } catch (error) {
+            logger.error({ message: "Error closing AMQP connection", error })
+        }
+    }
  }
 
 

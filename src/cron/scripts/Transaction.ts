@@ -37,6 +37,7 @@ export async function CronOrderAutoCancel() {
 
     try {
         job.start()
+        return job
     } catch (error) {
         throw error
     }
@@ -64,6 +65,7 @@ export async function CronSendNotificationLowStock() {
 
     try {
         job.start()
+        return job
     } catch (error) {
         throw error
     }
@@ -86,6 +88,7 @@ export async function CronAutoFinishTransaction() {
 
     try {
         job.start()
+        return job
     } catch (error) {
         throw error
     }

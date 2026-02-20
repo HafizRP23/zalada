@@ -6,9 +6,10 @@
   "scripts": {
     "start": "node dist/server.js",
     "build": "rimraf ./dist && tsc && tsc-alias",
-    "dev": "nodemon -e ts --exec \"ts-node -r tsconfig-paths/register -r ./src/entry/main.ts\"",
+    "dev": "npm-run-all --parallel server:dev mail:dev cron:dev",
+    "server:dev": "nodemon -e ts --exec \"ts-node -r tsconfig-paths/register -r ./src/entry/main.ts\"",
     "mail:dev": "nodemon -e ts --exec \"ts-node -r tsconfig-paths/register -r ./src/entry/mail.ts\"",
-    "cron:dev": "ts-node --experimental-specifier-resolution=node ./cron",
+    "cron:dev": "nodemon -e ts --exec \"ts-node -r tsconfig-paths/register -r ./src/entry/cron.ts\"",
     "migrate:create": "ts-node ./node_modules/typeorm/cli.js migration:create",
     "migrate:revert": "ts-node ./node_modules/typeorm/cli.js migration:revert --d ormconfig/index.ts",
     "migrate:generate": "ts-node ./node_modules/typeorm/cli.js migration:generate ormconfig/migrations/init --d ormconfig/index",

@@ -1,4 +1,5 @@
 import 'dotenv/config'
+import { ZodError } from 'zod';
 
 import { InfraMailer, InfraAMQP } from "@infrastructure/Common";
 import { mailAppSchema } from "src/config/app";
@@ -24,7 +25,16 @@ async function start() {
 
         amqp.consume(queue, ConsumerMessageHandler, { noAck: true })   
     } catch (error) {
-        logger.info({ message: 'zalada-mail', reason: error })
+        if (error instanceof ZodError) {
+            console.error("❌ Invalid environment variables:");
+            error.errors.forEach(e => {
+                console.error(`  - ${e.path.join('.')}: ${e.message}`);
+            });
+            process.exit(1);
+        } else {
+            logger.error({ message: 'zalada-mail crash', reason: error as Error })
+            process.exit(1);
+        }
     }
 }
 

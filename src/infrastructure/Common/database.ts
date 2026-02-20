@@ -9,6 +9,12 @@ class DatabaseService extends Infrastructure {
     getInstance() {
         return db
     }
+
+    async close() {
+        if (db.isInitialized) {
+            await db.destroy()
+        }
+    }
 }
 
 export default new DatabaseService()

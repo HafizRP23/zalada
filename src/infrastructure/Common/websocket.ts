@@ -40,6 +40,17 @@ export class WebsocketService extends Infrastructure {
     send(message: string) {
 
     }
+
+    async close() {
+        if (this.instance) {
+            return new Promise<void>((resolve, reject) => {
+                this.instance.close((err) => {
+                    if (err) reject(err)
+                    else resolve()
+                })
+            })
+        }
+    }
 }
 
 export default new WebsocketService

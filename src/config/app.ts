@@ -43,6 +43,17 @@ export const mainAppSchema = z.object({
     ...mailerDto,
     ...mainDBDto,
     ...mailAmqpDto,
+    ...sentryDto
+})
+
+export const envSchema = z.object({
+    NODE_ENV: z.enum(["production", "development", "testing"]),
+    NODE_HOST: z.string(),
+    JWT_SECRET_KEY: z.string(),
+    NODE_PORT: z.preprocess(port => parseInt(port as string), z.number()),
+    ...mailerDto,
+    ...mainDBDto,
+    ...mailAmqpDto,
     ...cronDto,
     ...sentryDto
 })
@@ -52,8 +63,12 @@ export const mailAppSchema = z.object({
     ...mailerDto
 })
 
+export const cronAppSchema = z.object({
+    ...mainDBDto
+})
 
-type EnvSchema = z.infer<typeof mainAppSchema>
+
+type EnvSchema = z.infer<typeof envSchema>
 
 declare global {
     namespace NodeJS {

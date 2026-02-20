@@ -1,10 +1,13 @@
 import * as TransJob from './scripts/Transaction'
 
 async function main() {
+    const jobs = []
     try {
-        await TransJob.CronOrderAutoCancel() // CRON for auto cancel order if not payed more than 2 hours
-        await TransJob.CronSendNotificationLowStock() // CRON for send notification to SA and inventory for low stock
-        await TransJob.CronAutoFinishTransaction() // CRON for auto finish transaction if user not finish it
+        jobs.push(await TransJob.CronOrderAutoCancel())
+        jobs.push(await TransJob.CronSendNotificationLowStock())
+        jobs.push(await TransJob.CronAutoFinishTransaction())
+        
+        return jobs.filter(Boolean) // Filter out any undefined jobs if any
     } catch (error) {
         console.log(error)
         process.exit(1)
