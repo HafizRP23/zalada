@@ -36,7 +36,10 @@ export type CreateTransactionQueryParams = {
     notes?: string
 }
 
-export type CreateTransactionDomainParams = CreateOrderRequest & {customer_id: number}
+export type CreateTransactionDomainParams = CreateOrderRequest & {
+    customer_id: number
+    coupon_code?: string
+}
 
 export type GetPaymentTypeQueryResult = {
     id: number
@@ -48,6 +51,7 @@ export type CreateOrderQueryParams = {
     order_no: string
     product_id: number
     price: number
+    price_after_discount: number
     quantity: number
 }
 
@@ -115,7 +119,6 @@ export type GetTransactionDetailsQueryResult = {
 export type ConfirmOrderRequest = z.infer<typeof confirmOrderRequest>
 
 export type ConfirmOrderDomain = ConfirmOrderRequest & { user_id: number }
-
 
 export type ChangeDeliveryStatusRequest = z.infer<typeof changeDeliveryStatusRequest>
 

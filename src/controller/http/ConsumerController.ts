@@ -1,5 +1,6 @@
 import { FastifyReply, FastifyRequest } from "fastify";
-import { RequestError } from "src/services/models/Common";
+import { RequestError } from "src/services/models/Common"
+import * as CouponDomainService from "src/services/domain/Coupon";;
 import * as ProductDomainService from "src/services/domain/Product";
 import * as TransactionDomainService from "src/services/domain/Transaction";
 import * as UserDomainService from "src/services/domain/User";
@@ -208,6 +209,15 @@ export async function cancelOrderHandler(request: FastifyRequest) {
         const orders = await TransactionDomainService.cancelOrderDomain({ customer_id, order_no })
 
         return { message: orders }
+    } catch (error) {
+        throw error
+    }
+}
+
+export async function listActiveCouponsHandler(request: FastifyRequest) {
+    try {
+        const response = await CouponDomainService.listActiveCouponsDomain()
+        return { message: response }
     } catch (error) {
         throw error
     }

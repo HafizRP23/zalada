@@ -7,10 +7,10 @@ import { transactionSchemas } from "@services/models/Transaction"
 import { commonSchemas } from "@services/models/Common"
 import { cartSchemas } from "@services/models/Cart"
 import { logSchemas } from "@services/models/Log"
-
+import { couponSchemas } from "@services/models/Coupon"
 
 export default fp(async (server) => {
-    for (const schema of [...userSchemas, ...productSchemas, ...transactionSchemas, ...commonSchemas, ...cartSchemas, ...logSchemas]) {
+    for (const schema of [...userSchemas, ...productSchemas, ...transactionSchemas, ...commonSchemas, ...cartSchemas, ...logSchemas, ...couponSchemas]) {
         server.addSchema(schema)
     }
 

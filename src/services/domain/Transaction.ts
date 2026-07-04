@@ -1,4 +1,6 @@
 import * as TransactionRepository from "../repository/Transaction";
+import * as CouponDomain from "./Coupon";
+import * as CouponRepository from "../repository/Coupon";
 import * as TransactionDto from "../models/Transaction";
 import * as ProductRepository from "../repository/Product"
 import * as CommonRepository from "../repository/Common"
@@ -12,7 +14,7 @@ export async function getPaymentTypesDomain() {
     return await TransactionRepository.DBGetPaymentTypes()
 }
 
-export async function createTransactionDomain({customer_id, order, payment_type, address, notes}: TransactionDto.CreateTransactionDomainParams) {
+export async function createTransactionDomain({customer_id, order, payment_type, address, notes, coupon_code}: TransactionDto.CreateTransactionDomainParams) {
     const order_no = `ORD/${customer_id}/${moment().unix()}`
     let stock: Record<string, number> | number = {}
     let total_price = 0
@@ -23,49 +25,96 @@ export async function createTransactionDomain({customer_id, order, payment_type,
         await queryRunner.startTransaction()
 
         await TransactionRepository.DBCheckPaymentExist(payment_type)
+        
+        let coupon: any = null
+        if (coupon_code) {
+            coupon = await CouponDomain.validateCouponDomain(coupon_code)
+        }
 
-        if(Array.isArray(order)) {
-            for (const item of order) {
-                // Check product exists
-                const product = await ProductRepository.DBCheckProductExist(item.product_id, { lock: true })
+        const items = Array.isArray(order) ? order : [order]
+        const orderItems = []
 
-                // Check quantity is more than product stock
-                if (product.stock < item.quantity) {
-                    throw new RequestError(`${product.name.split(" ").join("_").toUpperCase()}_EXCEEDS_STOCK`)
-                }
-
-                stock[product.name] = product.stock - item.quantity
-
-                total_price += product.price * item.quantity
-
-                await TransactionRepository.DBCreateOrder({ order_no, price: product.price, quantity: item.quantity, product_id: product.id }, queryRunner)
-
-                // Update product stock after transaction has been created
-                await ProductRepository.DBUpdateStockProduct({ product_id: product.id, stock: product.stock - item.quantity }, queryRunner)   
-            }
-        } else {
+        for (const item of items) {
             // Check product exists
-            const product = await ProductRepository.DBCheckProductExist(order.product_id, { lock: true })
+            const product = await ProductRepository.DBCheckProductExist(item.product_id, { lock: true })
 
             // Check quantity is more than product stock
-            if (product.stock < order.quantity) {
+            if (product.stock < item.quantity) {
                 throw new RequestError(`${product.name.split(" ").join("_").toUpperCase()}_EXCEEDS_STOCK`)
             }
 
-            total_price += product.price * order.quantity
+            if (Array.isArray(order)) {
+                if (typeof stock === 'number') stock = {}
+                stock[product.name] = product.stock - item.quantity
+            } else {
+                stock = product.stock - item.quantity
+            }
 
-            stock = product.stock - order.quantity
+            const itemTotalPrice = product.price * item.quantity
+            total_price += itemTotalPrice
+            
+            orderItems.push({
+                product_id: product.id,
+                price: product.price,
+                quantity: item.quantity,
+                itemTotalPrice,
+                product
+            })
+        }
+        
+        let totalDiscount = 0
+        if (coupon) {
+            if (coupon.discount_type === 'percentage') {
+                totalDiscount = (total_price * coupon.discount_value) / 100
+            } else if (coupon.discount_type === 'fixed') {
+                totalDiscount = coupon.discount_value
+            }
+            if (totalDiscount > total_price) {
+                totalDiscount = total_price
+            }
+        }
+        
+        for (const item of orderItems) {
+            let itemDiscount = 0
+            if (totalDiscount > 0) {
+                // Distribute discount proportionally based on item's share of total price
+                itemDiscount = Math.round(totalDiscount * (item.itemTotalPrice / total_price))
+            }
+            
+            // Due to rounding, the distributed discount might be slightly off from the total, but we apply it per item quantity
+            // price_after_discount is per unit
+            let discountPerUnit = itemDiscount / item.quantity
+            let price_after_discount = item.price - discountPerUnit
+            if (price_after_discount < 0) price_after_discount = 0
 
-            await TransactionRepository.DBCreateOrder({ order_no, price: product.price, quantity: order.quantity, product_id: product.id }, queryRunner)
+            await TransactionRepository.DBCreateOrder({ 
+                order_no, 
+                price: item.price, 
+                price_after_discount: price_after_discount,
+                quantity: item.quantity, 
+                product_id: item.product_id 
+            }, queryRunner)
 
             // Update product stock after transaction has been created
-            await ProductRepository.DBUpdateStockProduct({ product_id: product.id, stock: product.stock - order.quantity }, queryRunner)   
+            await ProductRepository.DBUpdateStockProduct({ product_id: item.product_id, stock: item.product.stock - item.quantity }, queryRunner)
         }
+
         await TransactionRepository.DBCreateTransaction({order_no, customer_id, payment_type, status: 1, address, notes}, queryRunner)
+        
+        if (coupon) {
+            await CouponRepository.DBCreateCouponUsage({
+                coupon_id: coupon.id,
+                user_id: customer_id,
+                order_no: order_no,
+                amount_cut: totalDiscount
+            }, queryRunner)
+            
+            await CouponRepository.DBUpdateCouponQuota(coupon.id, 1, queryRunner)
+        }
 
         await queryRunner.commitTransaction()
 
-        return { order_no, total_price, stock }
+        return { order_no, total_price: total_price - totalDiscount, stock }
     } catch (error) {
         await queryRunner.rollbackTransaction()
         throw error

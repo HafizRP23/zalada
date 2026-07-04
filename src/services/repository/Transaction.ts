@@ -34,12 +34,12 @@ export async function DBGetPaymentTypes() {
     return await db.query<TransactionDto.GetPaymentTypeQueryResult[]>(`SELECT id, bank_name, account FROM banks`)
 }
 
-export async function DBCreateOrder({order_no, price, product_id, quantity}: TransactionDto.CreateOrderQueryParams, queryRunner?: QueryRunner) {
+export async function DBCreateOrder({order_no, price, price_after_discount, product_id, quantity}: TransactionDto.CreateOrderQueryParams, queryRunner?: QueryRunner) {
     const order = [
-        [order_no, product_id, price, quantity]
+        [order_no, product_id, price, price_after_discount, quantity]
     ]
 
-    const query = await db.query<ResultSetHeader>(`INSERT INTO orders (order_no, product_id, price, quantity) VALUES ?`, [order], queryRunner)
+    const query = await db.query<ResultSetHeader>(`INSERT INTO orders (order_no, product_id, price, price_after_discount, quantity) VALUES ?`, [order], queryRunner)
 
     if(query.affectedRows < 1) {
         throw new ServerError("FAILED_CREATE_ORDER")

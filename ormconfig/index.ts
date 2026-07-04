@@ -10,5 +10,5 @@ export default new DataSource({
     database: process.env.DB_NAME,
     port: Number(process.env["DB_PORT"]),
     // migrations: ["dist/ormconfig/migrations/*.js"]
-    migrations: ["ormconfig/migrations/**/*{.ts, .js}"],
+    migrations: ["ormconfig/migrations/**/*{.ts,.js}"],
 })

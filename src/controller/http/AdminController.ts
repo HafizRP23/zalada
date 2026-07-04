@@ -8,6 +8,7 @@ import { CreateRulesRequest, CreateUserByAdmin, GetUserListRequest, RestoreTrash
 import * as Bcrypt from "src/utils/password"
 import { QueryFailedError } from "typeorm";
 import { ActivityLogListRequest } from "src/services/models/Log";
+import * as CouponDomainService from "src/services/domain/Coupon";
 
 export async function Hello(request: FastifyRequest) {
     return { message: "Hello" }
@@ -183,6 +184,35 @@ export async function activityLogListHandler(request: FastifyRequest) {
         if(error instanceof QueryFailedError) {
             throw new RequestError("INVALID_SEARCH_PROPERTIES")
         }
+        throw error
+    }
+}
+
+export async function createCouponHandler(request: FastifyRequest) {
+    try {
+        const payload = request.body as any
+        const response = await CouponDomainService.createCouponDomain(payload)
+        return { message: response }
+    } catch (error) {
+        throw error
+    }
+}
+
+export async function listCouponsHandler(request: FastifyRequest) {
+    try {
+        const response = await CouponDomainService.listCouponsDomain()
+        return { message: response }
+    } catch (error) {
+        throw error
+    }
+}
+
+export async function updateCouponHandler(request: FastifyRequest) {
+    try {
+        const payload = request.body as any
+        const response = await CouponDomainService.updateCouponDomain(payload)
+        return { message: response }
+    } catch (error) {
         throw error
     }
 }

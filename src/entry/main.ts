@@ -18,14 +18,14 @@ async function main() {
         // Env Validation
         await mainAppSchema.parseAsync(process.env)
 
-        await InfraAMQP.createSingleQueueProducer({
-            vhost: process.env.AMQP_VHOST,
-            hostname: process.env.AMQP_HOST,
-            username: process.env.AMQP_USERNAME,
-            password: process.env.AMQP_PASSWORD,
-            queue: process.env.AMQP_MAILER_QUEUE,
-            serviceName: process.env.AMQP_MAILER_NAME
-        })
+        // await InfraAMQP.createSingleQueueProducer({
+        //     vhost: process.env.AMQP_VHOST,
+        //     hostname: process.env.AMQP_HOST,
+        //     username: process.env.AMQP_USERNAME,
+        //     password: process.env.AMQP_PASSWORD,
+        //     queue: process.env.AMQP_MAILER_QUEUE,
+        //     serviceName: process.env.AMQP_MAILER_NAME
+        // })
 
         // Initialize database service
         await InfraDB.init()
@@ -49,8 +49,7 @@ async function main() {
             const err = error.issues[0]
             console.error({ message: `${err.code} ${err.path[0]}` })
         } else {
-            const message = JSON.stringify(error)
-            console.error({ message })
+            console.error(error)
         }
 
         process.exit(1)
