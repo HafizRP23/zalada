@@ -7,6 +7,7 @@ import { transactionSchema } from "src/services/models/Transaction";
 import * as Auth from "src/config/auth";
 import { commonSchema, baseResponse } from "src/services/models/Common";
 import * as Log from "src/config/log";
+import { couponSchema } from "src/services/models/Coupon";
 
 const routes: RouteOptions[] = [
   {
@@ -269,6 +270,24 @@ const routes: RouteOptions[] = [
     },
     preHandler: Auth.CheckAuth,
     handler: ConsumerController.cancelOrderHandler
+  },
+  {
+    method: ["GET"],
+    url: "/coupons/active",
+    schema: {
+      tags: ["Consumer Services", "Coupons"],
+      summary: "Get Active Coupons",
+      security: [
+        {
+          authorization: []
+        }
+      ],
+      response: baseResponse({
+        schema: couponSchema("getCouponsResponse")
+      })
+    },
+    preHandler: Auth.CheckAuth,
+    handler: ConsumerController.listActiveCouponsHandler
   }
 ];
 

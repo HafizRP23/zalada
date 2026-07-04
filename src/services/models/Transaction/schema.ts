@@ -13,7 +13,8 @@ export const createOrderRequest = z.object({
     order: z.union([createOrder, createOrders]),
     payment_type: z.number(),
     address: z.string(),
-    notes: z.string().optional()
+    notes: z.string().optional(),
+    coupon_code: z.string().optional()
 })
 
 export const createOrderResponse = z.object({

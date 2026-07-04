@@ -8,6 +8,7 @@ import { baseResponse, commonSchema } from "src/services/models/Common";
 import { request } from "http";
 import * as Log from "src/config/log";
 import { logSchema } from "src/services/models/Log";
+import { couponSchema } from "src/services/models/Coupon";
 
 const routes: RouteOptions[] = [
     {
@@ -250,6 +251,62 @@ const routes: RouteOptions[] = [
         },
         preHandler: Auth.CheckRules(ListRules.ACCESS_VIEW_LOG),
         handler: AdminController.activityLogListHandler
+    },
+    {
+        method: ["POST"],
+        url: "/coupons",
+        schema: {
+            tags: ["Admin Services", "Coupons"],
+            summary: "Create New Coupon",
+            security: [
+                {
+                    authorization: []
+                }
+            ],
+            body: couponSchema("createCouponRequest"),
+            response: baseResponse({
+                schema: couponSchema("createCouponResponse")
+            })
+        },
+        preHandler: Auth.CheckRules(ListRules.ACCESS_CREATE_PRODUCT), // Using product rule for now, could be its own rule
+        handler: AdminController.createCouponHandler
+    },
+    {
+        method: ["GET"],
+        url: "/coupons",
+        schema: {
+            tags: ["Admin Services", "Coupons"],
+            summary: "Get All Coupons",
+            security: [
+                {
+                    authorization: []
+                }
+            ],
+            response: baseResponse({
+                schema: couponSchema("getCouponsResponse")
+            })
+        },
+        preHandler: Auth.CheckRules(ListRules.ACCESS_CREATE_PRODUCT),
+        handler: AdminController.listCouponsHandler
+    },
+    {
+        method: ["PUT"],
+        url: "/coupons",
+        schema: {
+            tags: ["Admin Services", "Coupons"],
+            summary: "Update Coupon",
+            security: [
+                {
+                    authorization: []
+                }
+            ],
+            body: couponSchema("updateCouponRequest"),
+            response: baseResponse({
+                schema: couponSchema("updateCouponResponse")
+            })
+        },
+        preHandler: Auth.CheckRules(ListRules.ACCESS_CREATE_PRODUCT),
+        handler: AdminController.updateCouponHandler
     }
 ]
 
